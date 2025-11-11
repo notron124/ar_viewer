@@ -1,397 +1,67 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AR Запуск</title>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <title>Моя AR Модель</title>
+    <script src="model-viewer.js" type="module"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
         body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            margin: 0;
             padding: 20px;
+            font-family: Arial;
+            background: #f5f5f5;
+            text-align: center;
         }
-        
         .container {
-            max-width: 500px;
+            max-width: 800px;
             margin: 0 auto;
             background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-        
-        .page {
-            padding: 40px 30px;
-            display: none;
-        }
-        
-        .page.active {
-            display: block;
-        }
-        
-        .main-page {
-            text-align: center;
-        }
-        
-        .ar-page {
-            background: #000;
-            color: white;
-            min-height: 80vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        h1 {
-            color: #333;
-            margin-bottom: 20px;
-            font-size: 28px;
-        }
-        
-        h2 {
-            color: white;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-        
-        .model-card {
-            background: #f8f9fa;
-            border: 2px solid #e9ecef;
-            border-radius: 15px;
-            padding: 25px;
-            margin: 20px 0;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .model-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            border-color: #4285f4;
-        }
-        
-        .model-title {
-            font-size: 20px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 10px;
-        }
-        
-        .model-description {
-            color: #666;
-            font-size: 14px;
-        }
-        
-        .btn {
-            background: #4285f4;
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 50px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            margin: 10px;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-        }
-        
-        .btn:hover {
-            background: #3367d6;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(66, 133, 244, 0.3);
-        }
-        
-        .btn-secondary {
-            background: transparent;
-            color: #4285f4;
-            border: 2px solid #4285f4;
-        }
-        
-        .btn-secondary:hover {
-            background: #4285f4;
-            color: white;
-        }
-        
-        .qr-container {
-            background: white;
             padding: 20px;
-            border-radius: 15px;
-            margin: 25px 0;
-            display: inline-block;
-        }
-        
-        .instructions {
-            background: #e8f5e8;
-            padding: 15px;
             border-radius: 10px;
-            margin: 20px 0;
-            text-align: left;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        
-        .device-info {
-            background: #fff3cd;
-            padding: 12px;
-            border-radius: 8px;
-            margin: 15px 0;
-            font-size: 14px;
-        }
-        
-        .loading {
-            display: none;
-            font-size: 18px;
-            color: #666;
+        model-viewer {
+            width: 100%;
+            height: 500px;
             margin: 20px 0;
         }
-        
-        .back-btn {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(255,255,255,0.9);
+        .ar-button {
+            background: #4285f4;
+            color: white;
             border: none;
-            padding: 10px 15px;
-            border-radius: 8px;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 16px;
             cursor: pointer;
-            font-weight: bold;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Главная страница с выбором модели -->
-        <div id="mainPage" class="page active">
-            <div class="main-page">
-                <h1>🚀 AR Галерея</h1>
-                <p style="color: #666; margin-bottom: 30px;">Выберите модель для просмотра в дополненной реальности</p>
-                
-                <div class="model-card" onclick="selectModel('model1', 'Муравей
-                    Атом')">
-                    <div class="model-title">Муравей-Атом</div>
-                </div>
-
-                <div style="margin-top: 30px;">
-                    <button class="btn" onclick="showQRPage()">📱 Показать QR-коды</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Страница с QR-кодами -->
-        <div id="qrPage" class="page">
-            <div class="main-page">
-                <h1>📱 QR-коды для AR</h1>
-                <p style="color: #666; margin-bottom: 20px;">Отсканируйте для прямого запуска AR</p>
-                
-                <div class="instructions">
-                    <strong>Как использовать:</strong>
-                    <ol style="margin: 10px 0 0 20px;">
-                        <li>Отсканируйте QR-код камерой телефона</li>
-                        <li>Разрешите доступ к камере</li>
-                        <li>Наведите на горизонтальную поверхность</li>
-                    </ol>
-                </div>
-                
-                <div style="margin: 25px 0;">
-                    <h3>Муравей Атом</h3>
-                    <div class="qr-container">
-                        <div id="qrcode1"></div>
-                    </div>
-                    <button class="btn btn-secondary" onclick="launchAR('model1')">🚀 Запустить сейчас</button>
-                </div>
-                
-                <button class="btn" onclick="showMainPage()">← Назад к выбору</button>
-            </div>
-        </div>
-
-        <!-- Страница AR запуска -->
-        <div id="arPage" class="page">
-            <div class="ar-page">
-                <button class="back-btn" onclick="showMainPage()">← Назад</button>
-                
-                <h2 id="arModelTitle">Загрузка AR...</h2>
-                
-                <div class="loading" id="loadingMessage">
-                    ⏳ Запуск AR камеры...
-                </div>
-                
-                <div class="device-info" id="deviceInfo">
-                    Определение устройства...
-                </div>
-                
-                <div id="directLaunch" style="display: none;">
-                    <p style="margin-bottom: 20px; text-align: center;">
-                        Если AR не запустился автоматически:<br>
-                        <button class="btn" onclick="manualLaunch()">🔄 Запустить вручную</button>
-                    </p>
-                </div>
-                
-                <div style="margin-top: 30px; text-align: center;">
-                    <div class="qr-container">
-                        <div id="currentQRCode"></div>
-                    </div>
-                    <p style="margin-top: 15px; font-size: 14px; opacity: 0.8;">
-                        Или отсканируйте QR-код другим устройством
-                    </p>
+        <h1>🎯 Моя 3D Модель в AR</h1>
+        <p>Нажмите кнопку ниже чтобы посмотреть в дополненной реальности</p>
+        
+        <model-viewer
+            src="model.glb"
+            alt="Моя 3D модель"
+            ar
+            ar-modes="webxr scene-viewer quick-look"
+            auto-rotate
+            camera-controls
+            environment-image="neutral"
+            shadow-intensity="1">
+            
+            <button slot="ar-button" class="ar-button">
+                👁️ Открыть в AR
+            </button>
+            
+            <div slot="loading">
+                <div style="padding: 20px; color: #666;">
+                    ⏳ Загрузка модели...
                 </div>
             </div>
-        </div>
+        </model-viewer>
+        
+        <p><small>Откройте на мобильном устройстве для AR просмотра</small></p>
     </div>
-
-    <script>
-        // Конфигурация моделей
-        const models = {
-            model1: {
-                title: 'Архитектурная модель',
-                glb: 'https://notron124.github.io/model.glb',
-                usdz: '*'
-            },
-        };
-
-        let currentModel = null;
-
-        // Навигация по страницам
-        function showPage(pageId) {
-            document.querySelectorAll('.page').forEach(page => {
-                page.classList.remove('active');
-            });
-            document.getElementById(pageId).classList.add('active');
-        }
-
-        function showMainPage() {
-            showPage('mainPage');
-        }
-
-        function showQRPage() {
-            generateAllQRCodes();
-            showPage('qrPage');
-        }
-
-        function showARPage() {
-            showPage('arPage');
-            setTimeout(launchARDirect, 500);
-        }
-
-        // Выбор модели
-        function selectModel(modelId, title) {
-            currentModel = modelId;
-            document.getElementById('arModelTitle').textContent = title;
-            generateCurrentQRCode();
-            showARPage();
-        }
-
-        // Генерация QR-кодов
-        function generateAllQRCodes() {
-            Object.keys(models).forEach((modelId, index) => {
-                const qrUrl = generateARUrl(models[modelId].glb);
-                setTimeout(() => {
-                    QRCode.toCanvas(document.getElementById(`qrcode${index + 1}`), qrUrl, {
-                        width: 150,
-                        margin: 1,
-                        color: { dark: '#000000', light: '#FFFFFF' }
-                    });
-                }, index * 100);
-            });
-        }
-
-        function generateCurrentQRCode() {
-            if (!currentModel) return;
-            const qrUrl = generateARUrl(models[currentModel].glb);
-            QRCode.toCanvas(document.getElementById('currentQRCode'), qrUrl, {
-                width: 180,
-                margin: 1,
-                color: { dark: '#000000', light: '#FFFFFF' }
-            });
-        }
-
-        // Генерация AR URL
-        function generateARUrl(modelUrl) {
-            const isIOS = /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase());
-            
-            if (isIOS && models[currentModel].usdz) {
-                return models[currentModel].usdz;
-            } else {
-                return `https://arvr.google.com/scene-viewer?file=${encodeURIComponent(modelUrl)}&mode=ar_only`;
-            }
-        }
-
-        // Прямой запуск AR
-        function launchARDirect() {
-            if (!currentModel) return;
-            
-            const modelUrl = models[currentModel].glb;
-            const isAndroid = /android/.test(navigator.userAgent.toLowerCase());
-            const isIOS = /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase());
-            
-            document.getElementById('loadingMessage').style.display = 'block';
-            
-            let deviceText = '';
-            let launchUrl = '';
-            
-            if (isAndroid) {
-                deviceText = '📱 Android устройство - запуск AR через Scene Viewer...';
-                launchUrl = `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(modelUrl)}&mode=ar_only#Intent;scheme=https;package=com.google.ar.core;end;`;
-            } else if (isIOS && models[currentModel].usdz) {
-                deviceText = '📱 iOS устройство - запуск AR через Quick Look...';
-                launchUrl = models[currentModel].usdz;
-            } else {
-                deviceText = '💻 Универсальный запуск AR...';
-                launchUrl = `https://arvr.google.com/scene-viewer?file=${encodeURIComponent(modelUrl)}&mode=ar_only`;
-            }
-            
-            document.getElementById('deviceInfo').textContent = deviceText;
-            
-            // Пытаемся запустить AR
-            setTimeout(() => {
-                window.location.href = launchUrl;
-                
-                // Показываем кнопку ручного запуска через 3 секунды
-                setTimeout(() => {
-                    document.getElementById('directLaunch').style.display = 'block';
-                }, 3000);
-            }, 1000);
-        }
-
-        function manualLaunch() {
-            if (!currentModel) return;
-            const modelUrl = models[currentModel].glb;
-            window.open(`https://arvr.google.com/scene-viewer?file=${encodeURIComponent(modelUrl)}&mode=ar_only`, '_blank');
-        }
-
-        function launchAR(modelId) {
-            currentModel = modelId;
-            document.getElementById('arModelTitle').textContent = models[modelId].title;
-            generateCurrentQRCode();
-            showARPage();
-        }
-
-        // Инициализация при загрузке
-        document.addEventListener('DOMContentLoaded', function() {
-            // Авто-запуск AR если перешли по специальной ссылке
-            const urlParams = new URLSearchParams(window.location.search);
-            const autoModel = urlParams.get('model');
-            const autoLaunch = urlParams.get('launch');
-            
-            if (autoModel && models[autoModel]) {
-                currentModel = autoModel;
-                document.getElementById('arModelTitle').textContent = models[autoModel].title;
-                generateCurrentQRCode();
-                showARPage();
-                
-                if (autoLaunch === '1') {
-                    setTimeout(launchARDirect, 1000);
-                }
-            }
-        });
-    </script>
 </body>
 </html>
