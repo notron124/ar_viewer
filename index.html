@@ -1,101 +1,113 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>Моя AR Модель</title>
-    <script src="https://unpkg.com/@google/model-viewer@^2.1.1/dist/model-viewer.min.js" type="module"></script>
-    <style>
-        body {
-            margin: 0;
-            padding: 20px;
-            font-family: Arial;
-            background: #f5f5f5;
-            text-align: center;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        model-viewer {
-            width: 100%;
-            height: 500px;
-            margin: 20px 0;
-        }
-        .ar-button {
-            background: #4285f4;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 25px;
-            font-size: 16px;
-            cursor: pointer;
-            margin: 10px;
-        }
-        #fallback {
-            display: none;
-            padding: 20px;
-            color: #666;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>🎯 Моя 3D Модель в AR</h1>
-        <p>AR режим должен запуститься автоматически</p>
-        
-        <model-viewer
-            id="ar-model"
-            src="model.glb"
-            alt="Моя 3D модель"
-            ar
-            ar-modes="webxr scene-viewer quick-look"
-            auto-rotate
-            camera-controls
-            environment-image="neutral"
-            shadow-intensity="1"
-            ar-scale="fixed">
-            
-            <button slot="ar-button" class="ar-button">
-                👁️ Открыть в AR
-            </button>
-            
-            <div slot="loading">
-                <div style="padding: 20px; color: #666;">
-                    ⏳ Загрузка модели...
-                </div>
-            </div>
-        </model-viewer>
-        
-        <div id="fallback">
-            <p>Автоматический запуск AR не сработал. Нажмите кнопку выше.</p>
-        </div>
-        
-        <p><small>Откройте на мобильном устройстве для AR просмотра</small></p>
-    </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const modelViewer = document.getElementById('ar-model');
-            const fallback = document.getElementById('fallback');
-            
-            // Пытаемся автоматически запустить AR через 2 секунды после загрузки
+<head>
+   <title>Моя AR Модель с QR-кодом</title>
+   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+   <script src="model-viewer.js" type="module"></script>
+   <style>
+      body {
+         margin: 0;
+         padding: 20px;
+         font-family: Arial;
+         background: #f5f5f5;
+         text-align: center;
+      }
+
+      .container {
+         max-width: 800px;
+         margin: 0 auto;
+         background: white;
+         padding: 20px;
+         border-radius: 10px;
+         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      model-viewer {
+         width: 100%;
+         height: 500px;
+         margin: 20px 0;
+      }
+
+      .qr-container {
+         margin: 20px 0;
+         padding: 15px;
+         background: #f9f9f9;
+         border-radius: 10px;
+         display: inline-block;
+      }
+
+      #qrcode {
+         padding: 10px;
+         background: white;
+         border-radius: 5px;
+         display: inline-block;
+      }
+
+      .print-instructions {
+         margin-top: 15px;
+         font-size: 14px;
+         color: #666;
+      }
+   </style>
+</head>
+
+<body>
+   <div class="container">
+      <h1>🎯 Моя 3D Модель в AR</h1>
+      <p>Отсканируйте QR-код чтобы сразу открыть AR-просмотр</p>
+
+      <model-viewer id="modelViewer" src="model.glb" alt="Моя 3D модель" ar ar-modes="webxr scene-viewer quick-look"
+         auto-rotate camera-controls environment-image="neutral" shadow-intensity="1">
+
+         <div slot="loading">
+            <div style="padding: 20px; color: #666;">
+               ⏳ Загрузка модели...
+            </div>
+         </div>
+      </model-viewer>
+
+      <div class="qr-container">
+         <h3>QR-код для AR просмотра</h3>
+         <div id="qrcode"></div>
+         <div class="print-instructions">
+            Распечатайте этот QR-код для быстрого доступа к AR модели
+         </div>
+      </div>
+
+      <p><small>Откройте на мобильном устройстве для AR просмотра</small></p>
+   </div>
+
+   <script>
+      document.addEventListener('DOMContentLoaded', function () {
+         // Создаем URL для прямого запуска AR
+         const baseUrl = window.location.href.split('?')[0];
+         const arUrl = baseUrl + '?ar=true';
+
+         // Генерируем QR-код
+         QRCode.toCanvas(document.getElementById('qrcode'), arUrl, {
+            width: 200,
+            margin: 2,
+            color: {
+               dark: '#000000',
+               light: '#FFFFFF'
+            }
+         }, function (error) {
+            if (error) console.error(error);
+            console.log('QR-код успешно создан!');
+         });
+
+         // Автоматически запускаем AR, если в URL есть параметр ar=true
+         const urlParams = new URLSearchParams(window.location.search);
+         if (urlParams.get('ar') === 'true') {
+            const modelViewer = document.getElementById('modelViewer');
+            // Даем время на загрузку модели
             setTimeout(() => {
-                if (modelViewer.activateAR) {
-                    modelViewer.activateAR().then(() => {
-                        console.log('AR запущен автоматически');
-                    }).catch(error => {
-                        console.log('Автозапуск AR не удался:', error);
-                        fallback.style.display = 'block';
-                    });
-                } else {
-                    console.log('AR не поддерживается');
-                    fallback.style.display = 'block';
-                }
-            }, 2000);
-        });
-    </script>
+               modelViewer.activateAR();
+            }, 1000);
+         }
+      });
+   </script>
 </body>
+
 </html>
