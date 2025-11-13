@@ -37,31 +37,9 @@
 </head>
 <body>
     <div class="container">
-        <h1>🎯 Моя 3D Модель в AR</h1>
-        <p>Нажмите кнопку ниже чтобы посмотреть в дополненной реальности</p>
-        
-        <model-viewer
-            src="model.glb"
-            alt="Моя 3D модель"
-            ar
-            ar-modes="webxr scene-viewer quick-look"
-            auto-rotate
-            camera-controls
-            environment-image="neutral"
-            shadow-intensity="1">
-            
-            <button slot="ar-button" class="ar-button">
-                👁️ Открыть в AR
-            </button>
-            
-            <div slot="loading">
-                <div style="padding: 20px; color: #666;">
-                    ⏳ Загрузка модели...
-                </div>
-            </div>
-        </model-viewer>
-        
-        <p><small>Откройте на мобильном устройстве для AR просмотра</small></p>
+        <button slot="ar-button" class="ar-button">
+            Нажми меня!
+        </button>
     </div>
 </body>
 </html>
